@@ -1,4 +1,25 @@
+from fastapi import FastAPI
 from rdkit import Chem
+
+
+app = FastAPI()
+
+mol_db = [{"molecule_id": 1, "molecule_structure": "CCO"},
+          {"molecule_id": 2, "molecule_structure": "c1ccccc1"},
+          {"molecule_id": 3, "molecule_structure": "CC(=O)O"},
+          {"molecule_id": 4, "molecule_structure": "CC(=O)Oc1ccccc1C(=O)O"}
+          ]
+
+
+@app.post("/molecules/add")
+def add_molecule():
+    pass
+
+
+# 5. List all molecules
+@app.get("/molecules/all")
+def get_all_molecules():
+    return mol_db
 
 
 def substructure_search(mols: list, mol: str) -> list:
