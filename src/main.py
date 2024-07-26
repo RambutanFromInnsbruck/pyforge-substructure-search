@@ -11,7 +11,6 @@ mols_db = [{"molecule_id": 1, "molecule_structure": "CCO"},
           {"molecule_id": 4, "molecule_structure": "CC(=O)Oc1ccccc1C(=O)O"}
           ]
 
-
 # 0. Home page
 @app.get("/", tags=["Start"], status_code=status.HTTP_200_OK)
 def read_root():
@@ -19,16 +18,18 @@ def read_root():
 
 # 1. Add molecule (smiles) and its identifier
 @app.post("/molecules/add", tags=["Molecules"], status_code=status.HTTP_201_CREATED)
-def add_molecule(mol: Molecule):
+def add_molecule(added_molecule: Molecule):
     """
-    Add new molecule by identifier.
+    Add new molecule.
     ARGUMENTS:
-        - **molecule_id**: identifier of the added molecule
+        - **added_molecule**: data of the added molecule
     RETURNS:
         Dictionary with added molecule
     """
-    mols_db.append(mol)
-    return mol
+    if Chem.MolFromSmiles(added_molecule.molecule_structure) is None:
+        raise HTTPException(status_code=400, detail="Invalid input of SMILES notation of molecule")
+    mols_db.append(added_molecule)
+    return added_molecule
 
 # 2. Get molecule by identifier
 @app.get("/molecules/{molecule_id}", tags=["Molecules"], status_code=status.HTTP_200_OK)
@@ -52,7 +53,7 @@ def update_molecule(molecule_id: int, updated_molecule: Molecule):
     Updates a molecule by identifier.
     ARGUMENTS:
         - **molecule_id**: identifier of the molecule to be updated
-        - **updated_molecule**: updated molecule data
+        - **updated_molecule**: data of the updated molecule
     RETURNS:
         Dictionary with updated molecule
     """
@@ -94,7 +95,9 @@ def substructure_search(search_molecule: str):
     RETURNS:
         list of molecules with specified substructure in SMILES notation
     """
+    if Chem.MolFromSmiles(search_molecule) is None:
+        raise HTTPException(status_code=400, detail="Invalid input of SMILES notation of molecule")
     molecule = Chem.MolFromSmiles(search_molecule)
     match = [mol for mol in mols_db
              if Chem.MolFromSmiles(mol['molecule_structure']).HasSubstructMatch(molecule)]
-    return match
+    return {"molecules with specified substructure": match}
