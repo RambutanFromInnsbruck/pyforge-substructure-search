@@ -1,5 +1,7 @@
-from fastapi import FastAPI, HTTPException, status
+from fastapi import FastAPI, HTTPException, status, File, UploadFile
+from io import StringIO
 from rdkit import Chem
+import csv
 from models import Molecule
 
 
@@ -73,7 +75,7 @@ def delete_molecule(molecule_id: int):
     """
     for index, mol in enumerate(mols_db):
         if mol["molecule_id"] == molecule_id:
-            deleted_molecule = mols_db.pop()
+            deleted_molecule = mols_db.pop(molecule_id)
             return deleted_molecule
     raise HTTPException(status_code=404, detail="Molecule is not found")
 
