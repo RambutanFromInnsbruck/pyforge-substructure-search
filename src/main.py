@@ -1,8 +1,7 @@
-from fastapi import FastAPI, HTTPException, status, File, UploadFile
-from io import StringIO
+from fastapi import FastAPI, HTTPException, status
+from os import getenv
 from rdkit import Chem
-import csv
-from models import Molecule
+from src.models import Molecule
 
 
 app = FastAPI()
@@ -13,10 +12,9 @@ mols_db = [{"molecule_id": 1, "molecule_structure": "CCO"},
           {"molecule_id": 4, "molecule_structure": "CC(=O)Oc1ccccc1C(=O)O"}
           ]
 
-# 0. Home page
 @app.get("/", tags=["Start"], status_code=status.HTTP_200_OK)
-def read_root():
-    return {"message": "Welcome to Substructure Search Application"}
+def get_server():
+    return {"server_id": getenv("SERVER_ID", "1")}
 
 # 1. Add molecule (smiles) and its identifier
 @app.post("/molecules/add", tags=["Molecules"], status_code=status.HTTP_201_CREATED)
